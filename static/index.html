@@ -6,7 +6,7 @@
     <meta content='width=device-width; height=device-height; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;' name='viewport' />
     <meta name="viewport" content="width=device-width" />
     <meta name="license" content="
-        Copyright 2013 Abram Hindle
+        Copyright 2017 Shuming Zhang
         
         Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
@@ -39,7 +39,11 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
             try {
                 if (xhr.status==200) {
                     //XXX: parse some JSON from the request!
+                    var data = JSON.parse(xhr.responseText);
                     //XXX: Pass the data to the callback!
+                    if (callback) {
+                        callback(data);
+                    }
                 }
             } 
             catch(e) {
@@ -48,8 +52,12 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
         }
     };
     //XXX: POST to a URL
+    xhr.open("POST", url);
     //XXX: set the mimetype and the accept headers!
     // Remember to use application/json !
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.send(JSON.stringify(objects));
 }
 
 
@@ -63,10 +71,24 @@ function drawCircle(context,entity) {
         var x = entity["x"];
         var y = entity["y"];
         //moveTo(x,y);
-        fillStyle = entity["colour"];
-        strokeStyle = fillStyle;
-        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
-        stroke();                                
+        var radius = entity["radius"];
+
+        //Based on https://www.w3schools.com/html/html5_canvas.asp
+        if (radius == 10) {
+            font = "20px Arial";
+            fillText("❄", x - 15, y);
+        } else {
+            font = "50px Arial";
+            fillText("☃", x - 25, y);
+        }
+
+        //❄☃
+
+
+        fillStyle = "white";
+        //strokeStyle = grd;
+        //arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);
+        //stroke();
     }
 }
 
@@ -136,9 +158,9 @@ function getPosition(e) {
 
 function addEntity(entity, data) {
     world[entity] = data;
-    drawNextFrame(); // (but should we?)
+    //drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just  modified!
-
+    sendJSONXMLHTTPRequest("/entity/"+entity, data);
 }
 
 var counter = 0;
@@ -262,6 +284,10 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
 
 function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
+    drawNextFrame();
+    sendJSONXMLHTTPRequest("/world", null, function (data) {
+        world = data;
+    });
     drawFrame();
 }
 
