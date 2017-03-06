@@ -66,26 +66,26 @@ world = {};
 //XXX: TODO Make this prettier!
 function drawCircle(context,entity) {
     with(context) {
-        beginPath();              
-        lineWidth = 3;
+        //beginPath();
+        //lineWidth = 3;
         var x = entity["x"];
         var y = entity["y"];
         //moveTo(x,y);
-        var radius = entity["radius"];
+        var color = entity["colour"];
+        var fillStyle = "grey";
 
         //Based on https://www.w3schools.com/html/html5_canvas.asp
-        if (radius == 10) {
-            font = "20px Arial";
+        if (color=="green") {
+            var font = "20px Arial";
             fillText("❄", x - 15, y);
         } else {
-            font = "50px Arial";
+            var font = "50px Arial";
             fillText("☃", x - 25, y);
         }
 
         //❄☃
 
 
-        fillStyle = "grey";
         //strokeStyle = grd;
         //arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);
         //stroke();
@@ -104,9 +104,9 @@ function prepEntity(entity) {
 
 function clearFrame() {
     with(context) {
-	moveTo(0,0);
-	fillStyle = "#000";
-	fillRect(0,0,W,H);
+        moveTo(0,0);
+        fillStyle = "#000";
+        fillRect(0,0,W,H);
     }
 
 }
@@ -206,7 +206,7 @@ mouse = (function() {
                 var pos = getPosition(e);
                 var x = pos[0];
                 var y = pos[1];
-	        self.clicked = 1;
+	            self.clicked = 1;
                 self.callListeners(self.mousedowners,x,y,self.clicked,e);
                 //addEntityWithoutName({'x':x,'y':y,'colour':'red'});
             }
@@ -218,8 +218,8 @@ mouse = (function() {
                 var pos = getPosition(e);
                 var x = pos[0];
                 var y = pos[1];
-	        //self.poppin(x,y);
-	        self.clicked = 0;
+	            //self.poppin(x,y);
+	            self.clicked = 0;
                 self.selected = -1;
                 self.callListeners(self.mouseuppers,x,y,self.clicked,e);
                 //addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
@@ -241,7 +241,7 @@ mouse = (function() {
                 var y = pos[1];
 	        if (self.clicked != 0) {
 	            //self.squeakin(x,y);
-                    self.callListeners(self.mousedraggers,x,y,self.clicked,e);
+                self.callListeners(self.mousedraggers,x,y,self.clicked,e);
 	        }
                 self.callListeners(self.mousemovers,x,y,self.clicked,e);
             }            
@@ -285,7 +285,7 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
 function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
     drawNextFrame();
-    sendJSONXMLHTTPRequest("/world", world, function (data) {
+    sendJSONXMLHTTPRequest("/world", null, function (data) {
         world = data;
     });
     drawFrame();
